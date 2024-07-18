@@ -8,12 +8,12 @@ try:
     df = pd.read_csv(file_path).rename(columns=lambda x: x.strip())
     
     # Check for necessary columns
-    if all(col in data.columns for col in ['Ballot ID', 'Candidate']):
+    if all(col in df.columns for col in ['Ballot ID', 'Candidate']):
         # Total number of votes cast
-        total_votes = len(data)
+        total_votes = len(df)
 
         # Total votes per candidate
-        vote_counts = data['Candidate'].value_counts()
+        vote_counts = df['Candidate'].value_counts()
 
         # Calculate percentage of votes per candidate
         vote_percentages = (vote_counts / total_votes) * 100
