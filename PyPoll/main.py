@@ -3,12 +3,13 @@ import csv
 
 # Define the file path for the CSV file
 csv_path = os.path.join("PyPoll", "Resources", "election_data.csv")
+analysis_path = os.path.join("PyPoll", "Analysis", "PyPoll_analysis.txt")
 
 # Set variables
 total_votes = 0
 candidate_votes = {}
 
-# Open the CSV file and read its content
+
 with open(csv_path, 'r') as file:
     reader = csv.reader(file)
     header = next(reader) 
@@ -43,3 +44,6 @@ for result in results:
 print("-------------------------")
 print(f"Winner: {winner}")
 
+with open(analysis_path, 'w') as file:
+    for line in results:
+        file.write(line + '\n')

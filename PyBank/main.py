@@ -3,6 +3,7 @@ import csv
 
 # Define the file path for the CSV file
 csv_path = os.path.join("PyBank", "Resources", "budget_data.csv")
+analysis_path = os.path.join("PyBank", "Analysis", "PyBank_analysis.txt")
 
 # Set variables
 total_months = 0
@@ -38,7 +39,7 @@ with open(csv_path, 'r') as csvfile:
 # Calculate average change
 average_change = total_change / (total_months - 1) if total_months > 1 else 0
 
-# Prepare the results
+# Print the results
 results = [
     "Financial Analysis",
     "----------------------------",
@@ -48,7 +49,9 @@ results = [
     f"Greatest Increase in Profits: {greatest_increase[0]} (${greatest_increase[1]})",
     f"Greatest Decrease in Profits: {greatest_decrease[0]} (${greatest_decrease[1]})"
 ]
-
-# Print the results to the console
 for line in results:
     print(line)
+
+with open(analysis_path, 'w') as file:
+    for line in results:
+        file.write(line + '\n')
