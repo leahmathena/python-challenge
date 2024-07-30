@@ -1,53 +1,54 @@
-import pandas as pd
 import os
+import csv
 
-# Define the file path
-file_path = r'C:\Users\leahm\python-challenge\PyBank\Resources\budget_data.csv'
+# Define the file path for the CSV file
+csv_path = os.path.join("PyBank", "Resources", "budget_data.csv")
 
-# Read the CSV file
-df = pd.read_csv(file_path)
+# Set variables
+total_months = 0
+net_total = 0
+previous_profit = None
+total_change = 0
+greatest_increase = ('', float('-inf'))
+greatest_decrease = ('', float('inf'))
 
-# Clean and convert data types
-df['Date'] = pd.to_datetime(df['Date'].str.strip(), format='%b-%y', errors='coerce')
-df['Profit/Losses'] = pd.to_numeric(df['Profit/Losses'], errors='coerce')
 
-# Drop rows with NaT in Date or NaN in Profit/Losses
-df = df.dropna(subset=['Date', 'Profit/Losses'])
+with open(csv_path, 'r') as csvfile:
+    csvreader = csv.reader(csvfile, delimiter=',')
+    next(csvreader) 
 
-# Calculate required metrics
-total_months = df['Date'].nunique()
-net_total = df['Profit/Losses'].sum()
-df['Change'] = df['Profit/Losses'].diff()
+    for row in csvreader:
+        date, profit_loss = row
+        profit_loss = int(profit_loss)
+        
+        total_months += 1
+        net_total += profit_loss
+
+        if previous_profit is not None:
+            change = profit_loss - previous_profit
+            total_change += change
+
+            if change > greatest_increase[1]:
+                greatest_increase = (date, change)
+            if change < greatest_decrease[1]:
+                greatest_decrease = (date, change)
+
+        previous_profit = profit_loss
 
 # Calculate average change
-average_change = df['Change'].mean()
+average_change = total_change / (total_months - 1) if total_months > 1 else 0
 
-# Determine greatest increase and decrease
-greatest_increase = df.loc[df['Change'].idxmax()]
-greatest_decrease = df.loc[df['Change'].idxmin()]
-
-# Format dates for output
-greatest_increase_date = greatest_increase['Date'].strftime('%b-%y')
-greatest_decrease_date = greatest_decrease['Date'].strftime('%b-%y')
-
-# Prepare results
+# Prepare the results
 results = [
     "Financial Analysis",
-    "-----------------------------",
+    "----------------------------",
     f"Total Months: {total_months}",
-    f"Net Total Profit/Losses: ${int(net_total)}",
-    f"Average Change in Profit/Losses: ${average_change:.2f}",
-    f"Greatest Increase in Profits: {greatest_increase_date} (${int(greatest_increase['Change'])})",
-    f"Greatest Decrease in Profits: {greatest_decrease_date} (${int(greatest_decrease['Change'])})"
+    f"Total: ${net_total}",
+    f"Average Change: ${average_change:.2f}",
+    f"Greatest Increase in Profits: {greatest_increase[0]} (${greatest_increase[1]})",
+    f"Greatest Decrease in Profits: {greatest_decrease[0]} (${greatest_decrease[1]})"
 ]
 
-# Print results to the terminal
+# Print the results to the console
 for line in results:
     print(line)
-
-# Export results to a text file
-output_path = r'C:\Users\leahm\python-challenge\PyBank\analysis\financial_analysis.txt'
-with open(output_path, 'w') as f:
-    for line in results:
-        f.write(line + '\n')
-
